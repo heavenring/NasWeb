@@ -1,0 +1,82 @@
+# ▶ Python 기본
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+
+# ▶ 가상환경
+venv/
+ENV/
+env/
+.venv/
+*.env
+
+# ▶ Django 관련
+*.sqlite3
+*.log
+*.pot
+*.pyc
+db.sqlite3
+media/
+staticfiles/
+
+# ▶ 마이그레이션 캐시 (단, 마이그레이션 스크립트는 포함해야 함)
+*/migrations/__pycache__/
+*/migrations/*.pyc
+
+# ▶ 환경 설정 / 보안
+.env
+*.pem
+*.crt
+*.key
+secrets.json
+
+# ▶ IDE 관련
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+
+# ▶ 배포 도구 (uwsgi, gunicorn 등)
+*.pid
+*.log
+*.bak
+*.tmp
+
+# ▶ Docker 사용 시
+Dockerfile
+docker-compose.yml
+*.tar
+.docker/
+
+# ▶ Node.js (프론트엔드 연동 시)
+node_modules/
+package-lock.json
+yarn.lock
+dist/
+build/
+
+# ▶ PyInstaller (PyQt5 앱 빌드 시)
+dist/
+build/
+*.spec
+
+# ▶ 테스트/커버리지
+htmlcov/
+.tox/
+.coverage
+coverage.xml
+*.cover
+.cache
+nosetests.xml
+test-results/
+pytest_cache/
+
+# ▶ 문서 빌드(Sphinx 등)
+_build/
+docs/_build/
+
+# ▶ 기타 시스템 파일
+.DS_Store
+Thumbs.db
