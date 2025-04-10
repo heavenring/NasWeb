@@ -2,13 +2,11 @@ import paramiko
 from decouple import config
 from django.views.static import directory_index
 
+def ssh_info():
+    return config('ssh_host'),int(config('ssh_port')), config('ssh_user'), config('ssh_pwd')
 
 def download_file(filepath, filename, download_dir):
-
-    host = config('ssh_host')
-    port = config('ssh_port')
-    username = config('ssh_user')
-    password = config('ssh_pwd')
+    host, port, username, password = ssh_info()
 
     remote_path = f"{filepath}/{filename}"
 
@@ -29,10 +27,7 @@ def download_file(filepath, filename, download_dir):
 
 
 def upload_file(upload_file_path, remote_path):
-    host = config('ssh_host')
-    port = config('ssh_port')
-    username = config('ssh_user')
-    password = config('ssh_pwd')
+    host, port, username, password = ssh_info()
 
     with open(upload_file_path, 'wb+') as destination:
         for chunk in remote_path.chunks():
@@ -48,18 +43,19 @@ def upload_file(upload_file_path, remote_path):
     ssh.close()
     
 def get_sftp_file_list():
-    host = config('ssh_host')
-    port = config('ssh_port')
-    username = config('ssh_user')
-    password = config('ssh_pwd')
+    host, port, username, password = ssh_info()
 
     file_list = []
     try:
+        print('sftp connect try')
         transport = paramiko.Transport((host, port))
         transport.connect(username=username, password=password)
         sftp = paramiko.SFTPClient.from_transport(transport)
 
+        print('sftp connect success')
+
         for item in sftp.listdir_attr('.'):
+            print(f'sftp dir: {item}')
             file_list.append(item.filename)
 
         sftp.close()
