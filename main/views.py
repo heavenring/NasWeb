@@ -1,16 +1,21 @@
-from django.shortcuts import render
-from django.http import HttpResponse, FileResponse
+from django.shortcuts import render, redirect
+from django.views.decorators.csrf import csrf_exempt
+from .utils import get_sftp_file_list
 
-from main.utils import download_file
+def main_page(request):
+    if request.session.get('is_logged_in'):
+        file_list = get_sftp_file_list()
+        return render(request, 'MainPage.html', {'file_list': file_list})
+    else:
+        return render(request, 'MainPage.html')
 
-
-def home(request):
-    return HttpResponse("Hello, this is the NASWeb home page!")
-
-def test(request):
-    return HttpResponse("Hello")
-
-def download_file_view(request, filename, download_dir):
-    file_path = ''
-    local_path = download_file(file_path, filename, download_dir)
-    return FileResponse(open(local_path, 'rb'), as_attachment=True)
+@csrf_exempt
+def login_view(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        # 단순 인증 로직 (예시)
+        if username == 'admin' and password == '1234':
+            request.session['is_logged_in'] = True
+        return redirect('home')
+    return redirect('home')

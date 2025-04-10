@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Nas Web</title>
+</head>
+<body>
+<form method="post" action="{% url 'login' %}">
+  {% csrf_token %}
+  <div style="text-align: center; margin-top: 200px;">
+    <input type="text" name="username" placeholder="ID"><br><br>
+    <input type="password" name="password" placeholder="Password"><br><br>
+    <button type="submit">로그인</button>
+  </div>
+</form>
+
+</body>
+</html>
