@@ -32,6 +32,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'main.apps.MainConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -76,8 +77,12 @@ WSGI_APPLICATION = 'NasWeb.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': config('db_engine'), # 각 DB의 Driver
+        'NAME': config('db_name'), # DB의 이름
+        'USER': config('db_user'), # DB 접속에 사용하는 유저 명 (ID)
+        'PASSWORD': config('db_pwd'), # DB 접속에 사용하는 패스워드
+        'HOST': config('db_host'), # DB 접속에 사용하는 도메인 (호스트)
+        'PORT': config('db_port'), # DB 접속에 사용하는 포트번호
     }
 }
 
