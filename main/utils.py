@@ -1,3 +1,5 @@
+from io import BytesIO
+
 import paramiko
 from decouple import config
 from django.views.static import directory_index
@@ -9,7 +11,7 @@ def ssh_info():
 
 
 ### 파일 다운로드
-def download_file(filepath, filename, download_dir):
+def download_file(filepath, filename):
     host, port, username, password = ssh_info()
 
     remote_path = f"{filepath}/{filename}"
@@ -22,12 +24,14 @@ def download_file(filepath, filename, download_dir):
 
     print(f'file download try')
     sftp = ssh.open_sftp()
-    sftp.get(remote_path, download_dir)
+    with sftp.file(remote_path, 'rb') as remote_file:
+        file_data = remote_file.read()
+
     sftp.close()
     ssh.close()
     print(f'file download success')
 
-    return download_dir
+    return BytesIO(file_data)  # 파일 스트림 반환
 
 
 ### 파일 업로드
