@@ -57,7 +57,6 @@ def get_sftp_file_list(dir_path):
     # ssh 접속 정보 획득
     host, port, username, password = ssh_info()
 
-
     file_list = ['..'] # web에 출력할 file 리스트
     try:
         # sftp 연결 시도
