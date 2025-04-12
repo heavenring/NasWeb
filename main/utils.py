@@ -5,6 +5,8 @@ from decouple import config
 from django.views.static import directory_index
 
 
+
+
 ### ssh 접속 정보
 def ssh_info():
     return config('ssh_host'),int(config('ssh_port')), config('ssh_user'), config('ssh_pwd')

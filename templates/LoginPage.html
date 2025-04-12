@@ -46,7 +46,7 @@
   </script>
 {% endif %}
 
-<form method="post" action="{% url 'login' %}">
+<form method="post" action="{% url 'login_proc' %}">
   {% csrf_token %}
   <div style="text-align: center; margin-top: 200px;">
     <input type="text" name="username" placeholder="ID"><br><br>
