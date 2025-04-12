@@ -25,19 +25,39 @@ def login_view(request):
         if username == 'admin' and password == '1234':
             request.session['is_logged_in'] = True
             request.session['file_path'] = '.'
-        return redirect('home')
-    return redirect('login')
+            return redirect('home')
+    return render(request, 'MainPage.html')
 
 @csrf_exempt
 def download_item(request):
     if login_check(request):
         file_path = request.session.get('file_path')
         file_name = request.POST.get('file_name')
-        print(f"download_file_path: {file_path}, file_name: {file_name}")
 
-        file_stream = download_file(file_path, file_name)
+        print(f"length: {len(file_name.split('.'))}")
 
-        response = FileResponse(file_stream, as_attachment=True, filename=file_name)
-        return response
+        if len(file_name.split('.')) == 3:
+            file_path = file_path.split('/')
+            if len(file_path) > 1:
+                del file_path[-1]
+
+            file_path = '/'.join(file_path)
+            request.session['file_path'] = file_path
+
+            return redirect('home')
+
+        elif len(file_name.split('.')) == 2:
+            print(f"file_path: {file_path}, file_name: {file_name}")
+
+            file_stream = download_file(file_path, file_name)
+
+            response = FileResponse(file_stream, as_attachment=True, filename=file_name)
+            return response
+
+        else:
+            print(f"{file_name} is dir")
+            request.session['file_path'] += '/' + file_name
+
+            return redirect('home')
     else:
-        return redirect('login')
+        render(request, 'MainPage.html')
