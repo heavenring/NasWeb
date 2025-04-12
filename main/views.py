@@ -4,7 +4,7 @@ from .utils import get_sftp_file_list
 
 def main_page(request):
     if request.session.get('is_logged_in'):
-        file_list = get_sftp_file_list()
+        file_list = get_sftp_file_list('.')
         return render(request, 'MainPage.html', {'file_list': file_list})
     else:
         return render(request, 'MainPage.html')

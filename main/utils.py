@@ -2,9 +2,13 @@ import paramiko
 from decouple import config
 from django.views.static import directory_index
 
+
+### ssh 접속 정보
 def ssh_info():
     return config('ssh_host'),int(config('ssh_port')), config('ssh_user'), config('ssh_pwd')
 
+
+### 파일 다운로드
 def download_file(filepath, filename, download_dir):
     host, port, username, password = ssh_info()
 
@@ -26,6 +30,7 @@ def download_file(filepath, filename, download_dir):
     return download_dir
 
 
+### 파일 업로드
 def upload_file(upload_file_path, remote_path):
     host, port, username, password = ssh_info()
 
@@ -41,12 +46,17 @@ def upload_file(upload_file_path, remote_path):
     sftp.put(upload_file_path, remote_path)
     sftp.close()
     ssh.close()
-    
-def get_sftp_file_list():
+
+
+### sftp를 통해 nas에 있는 파일 목록 조회
+def get_sftp_file_list(dir_path):
+    # ssh 접속 정보 획득
     host, port, username, password = ssh_info()
 
-    file_list = []
+
+    file_list = [] # web에 출력할 file 리스트
     try:
+        # sftp 연결 시도
         print('sftp connect try')
         transport = paramiko.Transport((host, port))
         transport.connect(username=username, password=password)
@@ -54,12 +64,15 @@ def get_sftp_file_list():
 
         print('sftp connect success')
 
-        for item in sftp.listdir_attr('.'):
-            print(f'sftp dir: {item}')
-            file_list.append(item.filename)
+        # 숨김파일을 제외한 파일 조회
+        for item in sftp.listdir_attr(dir_path):
+            if not item.filename.startswith('.'):
+                full_path = f"{dir_path}/{item.filename}"
+                print(f'sftp file: {item.filename}, full path: {full_path}')
+                file_list.append(item.filename)
 
         sftp.close()
         transport.close()
     except Exception as e:
-        file_list.append(f"Error: {e}")
+        file_list.append((f"Error: {e}", None))
     return file_list
