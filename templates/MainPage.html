@@ -9,7 +9,15 @@
   <h1>파일 및 디렉토리 목록</h1>
   <ul>
     {% for item in file_list %}
-      <li>{{ item }}</li>
+      <li>
+      <form method="POST" action="/download/" style="display:inline;">
+          {% csrf_token %}
+          <input type="hidden" name="filename" value="{{ item }}">
+          <button type="submit" style="background:none;border:none;color:blue;text-decoration:underline;cursor:pointer;font-size: 18px;">
+            {{ item }}
+          </button>
+        </form>
+      </li>
     {% endfor %}
   </ul>
 {% else %}
