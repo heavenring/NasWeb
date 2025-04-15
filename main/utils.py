@@ -1,3 +1,4 @@
+import os
 from io import BytesIO
 
 import paramiko
@@ -60,6 +61,17 @@ def upload_file(upload_file_path, upload_file, remote_file_path):
         return False
 
     return True
+
+
+### 업로드 성공한 파일 삭제
+def delete_file(upload_file_path):
+    try:
+        os.remove(upload_file_path)
+        print(f"delete file: {upload_file_path}")
+    except FileNotFoundError:
+        print(f"delete file not found: {upload_file_path}")
+
+
 
 
 ### sftp를 통해 nas에 있는 파일 목록 조회

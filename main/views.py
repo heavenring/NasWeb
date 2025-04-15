@@ -119,8 +119,10 @@ def upload_item(request):
 
                 if upload_file(upload_file_path, file, remote_file_path):
                     print(f"{file} is uploaded successfully")
+                    delete_file(upload_file_path)
                 else:
                     print(f"{file} is uploaded failed")
+                    delete_file(upload_file_path)
 
             return render(request, 'MainPage.html',
             {
