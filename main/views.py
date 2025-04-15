@@ -22,7 +22,7 @@ def main_page(request):
     return render(request, 'MainPage.html',
                   {
                       'file_list': file_list,
-                      'user_name': request.session['user_name']
+                      'user_name': request.session.get('user_name', '')
                   })
 
 
@@ -69,13 +69,13 @@ def download_item(request):
                     return render(request, "MainPage.html", {
                         'error': '파일 다운로드에 실패했습니다.',
                         'file_list': get_sftp_file_list(request.session.get('file_path')),
-                        'user_name': request.session['user_name']
+                        'user_name': request.session.get('user_name', '')
                     })
             except Exception as e:
                 return render(request, "MainPage.html", {
                     'error': '파일 다운로드에 실패했습니다.',
                     'file_list': get_sftp_file_list(request.session.get('file_path')),
-                    'user_name': request.session['user_name']
+                    'user_name': request.session.get('user_name', '')
                 })
 
         # 이전 디렉토리로 이동
@@ -128,7 +128,7 @@ def upload_item(request):
             return render(request, 'MainPage.html',
             {
                 'file_list': get_sftp_file_list(request.session.get('file_path')),
-                'user_name': request.session['user_name']
+                'user_name': request.session.get('user_name', '')
             })
         else:
             return redirect('home')

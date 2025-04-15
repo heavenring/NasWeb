@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Nas Web</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsencrypt/3.0.0/jsencrypt.min.js"></script>
 </head>
 <body>
 <!-- 상단 배너 -->
@@ -46,7 +47,7 @@
   </script>
 {% endif %}
 
-<form method="post" action="{% url 'login_proc' %}">
+<form id = "login-form" method="post" action="{% url 'login_proc' %}">
   {% csrf_token %}
   <div style="text-align: center; margin-top: 200px;">
     <input type="text" name="username" placeholder="ID"><br><br>
@@ -55,5 +56,68 @@
   </div>
 </form>
 
+<script>
+    async function aesEncrypt(text, key, iv) {
+      const encoder = new TextEncoder();
+      const data = encoder.encode(text);
+
+      const cryptoKey = await crypto.subtle.importKey(
+        "raw", key, { name: "AES-CBC" }, false, ["encrypt"]
+      );
+
+      const encrypted = await crypto.subtle.encrypt(
+        { name: "AES-CBC", iv: iv }, cryptoKey, data
+      );
+
+      return {
+        data: btoa(String.fromCharCode(...new Uint8Array(encrypted))),
+        iv: btoa(String.fromCharCode(...iv))
+      };
+    }
+
+    document.getElementById("login-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      // 1. 서버에서 공개키 받아오기
+      const pubKey = await fetch('/get_public_key/')
+        .then(res => res.text());
+
+      // 2. 랜덤 AES 키 (128bit) & IV 생성
+      const aesKey = crypto.getRandomValues(new Uint8Array(16));
+      const iv = crypto.getRandomValues(new Uint8Array(16));
+
+      // 3. 사용자 정보 JSON으로 묶기
+      const loginData = document.getElementById("username").value + "&&&&" + document.getElementById("password").value;
+
+      // 4. AES로 암호화
+      const { data: encData, iv: encIv } = await aesEncrypt(loginData, aesKey, iv);
+
+      // 5. AES 키를 RSA로 암호화
+      const encryptor = new JSEncrypt();
+      encryptor.setPublicKey(pubKey);
+      const encKey = encryptor.encrypt(btoa(String.fromCharCode(...aesKey)));
+
+      // 6. 전송
+      fetch('/login_porc/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': '{{ csrf_token }}'  // Django CSRF
+        },
+        body: JSON.stringify({
+          enc_key: encKey,
+          enc_data: encData,
+          enc_iv: encIv
+        })
+      }).then(res => {
+        if (res.ok) {
+          alert('로그인 성공');
+          location.href = '/';
+        } else {
+          alert('로그인 실패');
+        }
+      });
+    });
+  </script>
 </body>
 </html>
