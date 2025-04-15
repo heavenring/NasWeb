@@ -35,21 +35,31 @@ def download_file(filepath, filename):
 
 
 ### 파일 업로드
-def upload_file(upload_file_path, remote_path):
+def upload_file(upload_file_path, upload_file, remote_file_path):
     host, port, username, password = ssh_info()
 
-    with open(upload_file_path, 'wb+') as destination:
-        for chunk in remote_path.chunks():
-            destination.write(chunk)
+    try:
+        with open(upload_file_path, 'wb+') as destination:
+            for chunk in upload_file.chunks():
+                destination.write(chunk)
+    except FileNotFoundError:
+        print('file not found')
+        return False
 
-    ssh = paramiko.SSHClient()
-    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    ssh.connect(host, port, username, password)
+    try:
+        ssh = paramiko.SSHClient()
+        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        ssh.connect(host, port, username, password)
 
-    sftp = ssh.open_sftp()
-    sftp.put(upload_file_path, remote_path)
-    sftp.close()
-    ssh.close()
+        sftp = ssh.open_sftp()
+        sftp.put(upload_file_path, remote_file_path)
+        sftp.close()
+        ssh.close()
+    except paramiko.ssh_exception.SSHException:
+        print('ssh connect fail')
+        return False
+
+    return True
 
 
 ### sftp를 통해 nas에 있는 파일 목록 조회

@@ -55,6 +55,12 @@
       </li>
     {% endfor %}
   </ul>
+    <!-- 파일 업로드 -->
+  <form method="POST" action="/upload/" enctype="multipart/form-data">
+    {% csrf_token %}
+    <input type="file" name="upload_file" multiple required>
+    <button type="submit">업로드</button>
+  </form>
 {% endif %}
 
 </body>

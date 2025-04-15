@@ -1,8 +1,11 @@
+import os
+
 from django.contrib import messages
 from django.http import FileResponse
 from django.shortcuts import render, redirect
 from django.views.decorators.csrf import csrf_exempt
 
+from NasWeb import settings
 from .data_log import insert_log
 from .utils import *
 from .models import *
@@ -99,3 +102,33 @@ def download_item(request):
             return redirect('home')
     else:
         render(request, 'LoginPage.html')
+
+
+### 파일 업로드
+@csrf_exempt
+def upload_item(request):
+
+    if login_check(request):
+        if request.method == 'POST':
+            files = request.FILES.getlist('upload_file')
+
+            for file in files:
+                upload_file_path = os.path.join(settings.BASE_DIR, 'file', file.name)
+                remote_file_path = f"{request.session['file_path']}/{file.name}"
+                print(f"file_path: {upload_file_path}")
+
+                if upload_file(upload_file_path, file, remote_file_path):
+                    print(f"{file} is uploaded successfully")
+                else:
+                    print(f"{file} is uploaded failed")
+
+            return render(request, 'MainPage.html',
+            {
+                'file_list': get_sftp_file_list(request.session.get('file_path')),
+                'user_name': request.session['user_name']
+            })
+        else:
+            return redirect('home')
+
+    else:
+        return render(request, 'LoginPage.html')

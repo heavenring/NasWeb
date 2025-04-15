@@ -9,4 +9,5 @@ urlpatterns = [
     path('logs/', views.logs, name='logs'),
     path('log_proc/', data_log.log_proc, name='log_proc'),
     path('download/', views.download_item, name='download'),
+    path('upload/', views.upload_item, name='upload'),
 ]
