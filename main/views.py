@@ -32,7 +32,10 @@ def login(request):
 @csrf_exempt
 def logs(request):
 
-    return redirect('home')
+    if request.session.get('is_logged_in'):
+        return redirect('log_proc')
+    else:
+        return render(request, 'LoginPage.html')
 
 
 # 파일 다운로드 혹은 디렉토리 이동

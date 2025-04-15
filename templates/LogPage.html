@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Nas Web</title>
+</head>
+<body>
+<!-- 상단 배너 -->
+<div style="
+    background-color: #A8E6CF;  /* 파스텔 민트 */
+    padding: 15px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: 'Segoe UI', sans-serif;
+    border-bottom: 2px solid #ccc;
+">
+    <!-- 좌측 로고/타이틀 -->
+    <a href="/" style="text-decoration: none; color: inherit; cursor: default;">
+        <div style="font-size: 24px; font-weight: bold; color: #333;">
+            NAS Web
+        </div>
+    </a>
+
+    <!-- 우측 사용자 정보 및 버튼 -->
+    <div style="display: flex; gap: 10px; align-items: center;">
+        <span style="font-size: 16px; color: #333;">
+            {{ user_name }} 님
+        </span>
+        {% if request.session.is_logged_in %}
+            <form action="/logout/" method="post" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" style="padding: 6px 12px; border-radius: 5px; border: none; background-color: #FF8B94; color: white; cursor: pointer;">로그아웃</button>
+            </form>
+        {% else %}
+            <a href="/login/" style="padding: 6px 12px; border-radius: 5px; background-color: #FF8B94; color: white; text-decoration: none;">로그인</a>
+        {% endif %}
+        <a href="/logs/" style="padding: 6px 12px; border-radius: 5px; background-color: #FFD3B6; color: black; text-decoration: none;">다운로드 로그</a>
+    </div>
+</div>
+
+{% if request.session.is_logged_in %}
+  <h1>파일 및 디렉토리 목록</h1>
+  <table>
+    <thead>
+      <tr>
+        <th>유형</th>
+        <th>파일 이름</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for data in data_stack %}
+      <tr>
+        <td>{{ data.type }}</td>
+        <td>{{ data.file_name }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endif %}
+
+</body>
+</html>

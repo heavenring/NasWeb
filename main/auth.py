@@ -8,6 +8,7 @@ from main.models import User
 def login_check(request):
     return request.session.get('is_logged_in')
 
+
 ### 로그인 프로세스
 @csrf_exempt
 def login_proc(request):
