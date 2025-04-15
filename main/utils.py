@@ -72,8 +72,6 @@ def delete_file(upload_file_path):
         print(f"delete file not found: {upload_file_path}")
 
 
-
-
 ### sftp를 통해 nas에 있는 파일 목록 조회
 def get_sftp_file_list(dir_path):
     # ssh 접속 정보 획득
