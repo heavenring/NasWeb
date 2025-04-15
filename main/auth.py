@@ -24,9 +24,7 @@ def login_proc(request):
             request.session['file_path'] = '.'
             request.session['user_name'] = username
 
-            return render(request, 'MainPage.html', {
-                'user_name': request.session.get('user_name')
-            })
+            return redirect('home')
 
         # User 테이블에 계정이 없을경우 error alert 실행
         except User.DoesNotExist:

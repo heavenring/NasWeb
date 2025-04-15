@@ -2,6 +2,8 @@ from django.contrib import messages
 from django.http import FileResponse
 from django.shortcuts import render, redirect
 from django.views.decorators.csrf import csrf_exempt
+
+from .data_log import insert_log
 from .utils import *
 from .models import *
 from .auth import *
@@ -14,7 +16,11 @@ def main_page(request):
     if login_check(request):
         file_list = get_sftp_file_list(request.session.get('file_path'))
 
-    return render(request, 'MainPage.html', {'file_list': file_list})
+    return render(request, 'MainPage.html',
+                  {
+                      'file_list': file_list,
+                      'user_name': request.session['user_name']
+                  })
 
 
 ### 로그인
@@ -52,8 +58,22 @@ def download_item(request):
             file_stream = download_file(file_path, file_name)
 
             # 브라우저에 저장된 경로로 파일 다운로드
-            response = FileResponse(file_stream, as_attachment=True, filename=file_name)
-            return response
+            try:
+                response = FileResponse(file_stream, as_attachment=True, filename=file_name)
+                if insert_log(request, file_name, "download"):
+                    return response
+                else:
+                    return render(request, "MainPage.html", {
+                        'error': '파일 다운로드에 실패했습니다.',
+                        'file_list': get_sftp_file_list(request.session.get('file_path')),
+                        'user_name': request.session['user_name']
+                    })
+            except Exception as e:
+                return render(request, "MainPage.html", {
+                    'error': '파일 다운로드에 실패했습니다.',
+                    'file_list': get_sftp_file_list(request.session.get('file_path')),
+                    'user_name': request.session['user_name']
+                })
 
         # 이전 디렉토리로 이동
         elif len(file_name.split('.')) == 3:
