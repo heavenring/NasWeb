@@ -48,12 +48,17 @@
 {% endif %}
 
 <form id = "login-form" method="post" action="{% url 'login_proc' %}">
-  {% csrf_token %}
-  <div style="text-align: center; margin-top: 200px;">
-    <input type="text" name="username" placeholder="ID"><br><br>
-    <input type="password" name="password" placeholder="Password"><br><br>
-    <button type="submit">로그인</button>
-  </div>
+    {% csrf_token %}
+    <div style="text-align: center; margin-top: 200px;">
+        <input type="text" id="username" name="username" placeholder="ID"><br><br>
+        <input type="password" id="password" name="password" placeholder="Password"><br><br>
+        
+        <input type="hidden" name="aes_key" id="aes_key">
+        <input type="hidden" name="e2e_data" id="e2e_data">
+        <input type="hidden" name="aes_iv" id="aes_iv">
+        
+        <button type="submit">로그인</button>
+    </div>
 </form>
 
 <script>
@@ -76,47 +81,33 @@
     }
 
     document.getElementById("login-form").addEventListener("submit", async (e) => {
-      e.preventDefault();
+        e.preventDefault();
 
-      // 1. 서버에서 공개키 받아오기
-      const pubKey = await fetch('/get_public_key/')
-        .then(res => res.text());
+        /** RSA 공개키 획득 */
+        const pubKey = await fetch('/get_public_key/')
+            .then(res => res.text());
 
-      // 2. 랜덤 AES 키 (128bit) & IV 생성
-      const aesKey = crypto.getRandomValues(new Uint8Array(16));
-      const iv = crypto.getRandomValues(new Uint8Array(16));
+        /** 랜덤 AES Key, IV 생성 */
+        const aesKey = crypto.getRandomValues(new Uint8Array(16));
+        const iv = crypto.getRandomValues(new Uint8Array(16));
+        
+        const loginData = document.getElementById("username").value + "&&&&" + document.getElementById("password").value;
 
-      // 3. 사용자 정보 JSON으로 묶기
-      const loginData = document.getElementById("username").value + "&&&&" + document.getElementById("password").value;
+        /** 로그인 데이터 AES로 암호화 */
+        const { data: encData, iv: encIv } = await aesEncrypt(loginData, aesKey, iv);
 
-      // 4. AES로 암호화
-      const { data: encData, iv: encIv } = await aesEncrypt(loginData, aesKey, iv);
+        /** AES Key를 RSA 공개키로 암호화 */
+        const encryptor = new JSEncrypt();
+        encryptor.setPublicKey(pubKey);
+        const encKey = encryptor.encrypt(btoa(String.fromCharCode(...aesKey)));
+        
+        /** form에 암호화한 정보 저장 */
+        document.getElementById("aes_key").value = encKey;
+        document.getElementById("e2e_data").value = encData;
+        document.getElementById("aes_iv").value = encIv;
 
-      // 5. AES 키를 RSA로 암호화
-      const encryptor = new JSEncrypt();
-      encryptor.setPublicKey(pubKey);
-      const encKey = encryptor.encrypt(btoa(String.fromCharCode(...aesKey)));
-
-      // 6. 전송
-      fetch('/login_porc/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRFToken': '{{ csrf_token }}'  // Django CSRF
-        },
-        body: JSON.stringify({
-          enc_key: encKey,
-          enc_data: encData,
-          enc_iv: encIv
-        })
-      }).then(res => {
-        if (res.ok) {
-          alert('로그인 성공');
-          location.href = '/';
-        } else {
-          alert('로그인 실패');
-        }
-      });
+        /** form 실행으로 데이터 전송 */
+        e.target.submit();
     });
   </script>
 </body>

@@ -5,6 +5,7 @@ urlpatterns = [
     path('', views.main_page, name='home'),
     path('login/', views.login, name='login'),
     path('login_proc/', auth.login_proc, name='login_proc'),
+    path('get_public_key/', auth.get_public_key, name='get_public_key'),
     path('logout/', auth.logout, name='logout'),
     path('logs/', views.logs, name='logs'),
     path('log_proc/', data_log.log_proc, name='log_proc'),
