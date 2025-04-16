@@ -59,6 +59,9 @@ def login_proc(request):
         user_name, password = decrypt_login_data(request)
         # User 테이블에 계정이 있을경우 session 할당 및 로그인
         try:
+            # 기존 세션 무효화
+            request.session.flush()
+
             User.objects.get(name=user_name, password=password)
             request.session['is_logged_in'] = True
             request.session['file_path'] = '.'
@@ -76,6 +79,7 @@ def login_proc(request):
 ### 로그아웃
 @csrf_exempt
 def logout(request):
-    request.session.clear()
+    # 기존 세션 무효화
+    request.session.flush()
 
     return redirect('home')
