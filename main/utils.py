@@ -88,8 +88,9 @@ def get_sftp_file_list(dir_path):
         print('sftp connect success')
 
         # 숨김파일을 제외한 파일 조회
+        black_file_list = config('black_file').split(',')
         for item in sftp.listdir_attr(dir_path):
-            if not item.filename.startswith('.'):
+            if not (item.filename.startswith('.') or item.filename in black_file_list):
                 full_path = f"{dir_path}/{item.filename}"
                 print(f'sftp file: {item.filename}, full path: {full_path}')
                 file_list.append(item.filename)
